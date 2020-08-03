@@ -140,6 +140,17 @@ class ProgramForm(forms.ModelForm):
     end_date = forms.DateTimeField(
         widget=DatePicker.DateInput(), required=False)
 
+    def clean_end_date(self):
+        start_date = self.cleaned_data['start_date']
+        end_date = self.cleaned_data['end_date']
+
+        if end_date < start_date:
+            raise forms.ValidationError("End date must be later than start date")
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return end_date
+
     def __init__(self, *args, **kwargs):
         self.request = kwargs.pop('request')
         self.organization = kwargs.pop('organization')
@@ -399,6 +410,17 @@ class ProjectAgreementSimpleForm(forms.ModelForm):
                 'disabled'] = "disabled"
             self.fields[
                 'approval'].help_text = "Approval level permissions required"
+
+    def clean_expected_end_date(self):
+        expected_start_date = self.cleaned_data['expected_start_date']
+        expected_end_date = self.cleaned_data['expected_end_date']
+
+        if expected_end_date < expected_start_date:
+            raise forms.ValidationError("Expected end date must be later than expected start date")
+
+        # Always return a value to use as the new cleaned data, even if
+        # this method didn't change it.
+        return expected_end_date
 
 
 class ProjectCompleteCreateForm(forms.ModelForm):
